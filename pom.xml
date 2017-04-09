@@ -12,6 +12,7 @@
         <module>shadowducks-common</module>
         <module>shadowducks-client</module>
         <module>shadowducks-server</module>
+        <module>shadowducks-panel</module>
     </modules>
     <url>https://github.com/landyking/shadowducks</url>
     <contributors>
