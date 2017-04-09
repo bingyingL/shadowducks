@@ -11,6 +11,12 @@
 
     <groupId>com.github.landyking</groupId>
     <artifactId>shadowducks-server</artifactId>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.github.landyking</groupId>
+            <artifactId>shadowducks-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

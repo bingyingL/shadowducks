@@ -1,0 +1,12 @@
+{
+  "server":"192.168.22.1",
+  "local_address":"127.0.0.1",
+  "local_port":1080,
+  "port_password":{
+    "8080":"pass8080",
+    "8890":"pass8890"
+  },
+  "timeout":300,
+  "method":"aes-256-cfb",
+  "fast_open":false
+}
