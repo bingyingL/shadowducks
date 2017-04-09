@@ -4,13 +4,13 @@ import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.ConfigUtil;
 import com.github.netfreer.shadowducks.common.config.PortContext;
 import com.github.netfreer.shadowducks.common.handler.TcpSecurityHandler;
+import com.github.netfreer.shadowducks.common.handler.UdpSecurityHandler;
 import com.github.netfreer.shadowducks.server.handler.SSHeadDecoder;
 import com.github.netfreer.shadowducks.server.handler.TcpForwardHandler;
+import com.github.netfreer.shadowducks.server.handler.UdpForwardHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -19,6 +19,8 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author: landy
@@ -70,15 +72,14 @@ public class Main {
             }
             Bootstrap udpBootstrap = new Bootstrap().group(work)
                     .channel(NioDatagramChannel.class)
-                    .option(ChannelOption.DATAGRAM_CHANNEL_ACTIVE_ON_REGISTRATION,true)
-                    .handler(new ChannelInitializer<NioDatagramChannel>() {
+                    .handler(new ChannelInboundHandlerAdapter() {
                         @Override
-                        protected void initChannel(NioDatagramChannel ch) throws Exception {
-                            log.info("#################");
-//                            PortContext portContext = config.getPortContext(ch.localAddress().getPort());
-//                            ch.pipeline().addLast(new UdpSecurityHandler(portContext));
-//                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-//                            ch.pipeline().addLast(new UdpForwardHandler());
+                        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                            Channel ch = ctx.channel();
+                            PortContext portContext = config.getPortContext(((InetSocketAddress) ch.localAddress()).getPort());
+                            ch.pipeline().addLast(new UdpSecurityHandler(portContext));
+                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
+                            ch.pipeline().addLast(new UdpForwardHandler());
                         }
                     });
 
