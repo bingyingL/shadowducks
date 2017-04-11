@@ -45,12 +45,12 @@ public class TcpSecurityHandler extends ChannelDuplexHandler {
         }
     }
 
-    private boolean writeIv = false;
+    private boolean writePrefix = false;
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!writeIv) {
-            writeIv = true;
+        if (!writePrefix) {
+            writePrefix = true;
             ctx.write(Unpooled.wrappedBuffer(encrypt.getPrefix()));
         }
         translate((ByteBuf) msg, encrypt);

@@ -80,6 +80,8 @@ public class Main {
                             ch.pipeline().addLast(new UdpSecurityHandler(portContext));
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new UdpForwardHandler());
+                            ch.pipeline().remove(this);
+                            ctx.fireChannelActive();
                         }
                     });
 
