@@ -1,10 +1,9 @@
 package com.github.netfreer.shadowducks.server.handler;
 
+import com.github.netfreer.shadowducks.common.utils.AppConstans;
 import com.github.netfreer.shadowducks.server.dns.DNSServer;
-import com.github.netfreer.shadowducks.server.pojo.SSHead;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -29,27 +28,27 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
     protected void channelRead0(final ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         final ByteBuf buf = msg.content();
         final InetSocketAddress srcAddress = msg.sender();
-        SSHead destAddress = null;
+        InetSocketAddress destAddress = null;
         if (buf.readableBytes() > 3) {
             short addressType = buf.readUnsignedByte();
-            if (addressType == SSHeadDecoder.IPv4) {
+            if (addressType == AppConstans.IPv4) {
                 if (buf.readableBytes() >= 6) {
                     String ip = buf.readUnsignedByte() + "." + buf.readUnsignedByte()
                             + "." + buf.readUnsignedByte() + "." + buf.readUnsignedByte();
                     int port = buf.readUnsignedShort();
-                    destAddress = new SSHead(addressType, ip, port);
+                    destAddress = new InetSocketAddress(ip, port);
                 }
-            } else if (addressType == SSHeadDecoder.IPv6) {
+            } else if (addressType == AppConstans.IPv6) {
                 LOGGER.info("不支持IPv6 .....");
                 return;
-            } else if (addressType == SSHeadDecoder.Domain) {
+            } else if (addressType == AppConstans.Domain) {
                 short len = buf.readUnsignedByte();
                 if (buf.readableBytes() >= (len + 2)) {
                     byte[] tmp = new byte[len];
                     buf.readBytes(tmp);
                     String domain = new String(tmp, CharsetUtil.UTF_8);
                     int port = buf.readUnsignedShort();
-                    destAddress = new SSHead(addressType, domain, port);
+                    destAddress = new InetSocketAddress(domain, port);
                 }
             }
         }
@@ -58,21 +57,21 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
             LOGGER.debug("{}:{} 接收到来自 {}:{} 的UDP包, 该包的目的地址是 {}:{}",
                     msg.recipient().getHostName(), msg.recipient().getPort(),
                     srcAddress.getHostName(), srcAddress.getPort(),
-                    destAddress.getHost(), destAddress.getPort());
-            final InetSocketAddress finalDestAddress = new InetSocketAddress(destAddress.getHost(), destAddress.getPort());
+                    destAddress.getHostName(), destAddress.getPort());
+            final InetSocketAddress finalDestAddress = new InetSocketAddress(destAddress.getHostName(), destAddress.getPort());
             InetSocketAddress tmpAddress;
-            if (destAddress.getHost().equals(googleDnsServer) && destAddress.getPort() == googleDnsPort) {
-                LOGGER.debug("实际目的地址由{}:{}替换为{}:{}",googleDnsServer,googleDnsPort,DNSServer.dnsServer, DNSServer.dnsPort);
+            if (destAddress.getHostName().equals(googleDnsServer) && destAddress.getPort() == googleDnsPort) {
+                LOGGER.debug("实际目的地址由{}:{}替换为{}:{}", googleDnsServer, googleDnsPort, DNSServer.dnsServer, DNSServer.dnsPort);
                 tmpAddress = new InetSocketAddress(DNSServer.dnsServer, DNSServer.dnsPort);
-            }else{
-                tmpAddress=finalDestAddress;
+            } else {
+                tmpAddress = finalDestAddress;
             }
             final InetSocketAddress actualDestAddress = tmpAddress;
             if (src2channel.containsKey(srcAddress.toString())) {
                 Channel channel = src2channel.get(srcAddress.toString());
                 channel.writeAndFlush(new DatagramPacket(remain, actualDestAddress));
             } else {
-                final SSHead finalDestAddress1 = destAddress;
+                final InetSocketAddress finalDestAddress1 = destAddress;
                 new Bootstrap().group(ctx.channel().eventLoop())
                         .channel(NioDatagramChannel.class)
                         .handler(new ChannelInitializer<NioDatagramChannel>() {
@@ -100,9 +99,9 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
     private class InnerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         private final Channel forwardChannel;
         private final InetSocketAddress srcAddress;
-        private final SSHead destAddress;
+        private final InetSocketAddress destAddress;
 
-        public InnerHandler(InetSocketAddress srcAddress, SSHead destAddress, Channel forwardChannel) {
+        public InnerHandler(InetSocketAddress srcAddress, InetSocketAddress destAddress, Channel forwardChannel) {
             this.srcAddress = srcAddress;
             this.destAddress = destAddress;
             this.forwardChannel = forwardChannel;
@@ -111,21 +110,21 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
             InetSocketAddress sender = msg.sender();
-            LOGGER.debug("收到来自{}:{}的UDP回复包,理论地址为{}:{}", sender.getHostName(),sender.getPort(), destAddress.getHost(),destAddress.getPort());
+            LOGGER.debug("收到来自{}:{}的UDP回复包,理论地址为{}:{}", sender.getHostName(), sender.getPort(), destAddress.getHostName(), destAddress.getPort());
 
-
+/*
             ByteBuf buf = Unpooled.buffer().writeByte(destAddress.getType());
-            if (destAddress.getType() == SSHeadDecoder.Domain) {
-                byte[] bytes = destAddress.getHost().getBytes(CharsetUtil.US_ASCII);
+            if (destAddress.getType() == AppConstans.Domain) {
+                byte[] bytes = destAddress.getHostName().getBytes(CharsetUtil.US_ASCII);
                 buf.writeByte(bytes.length)
                         .writeBytes(bytes);
-            } else if (destAddress.getType() == SSHeadDecoder.IPv4) {
+            } else if (destAddress.getType() == AppConstans.IPv4) {
                 String[] arr = destAddress.getHost().split("\\.");
                 for (String one : arr) {
                     int i = Integer.parseInt(one);
                     buf.writeByte(i);
                 }
-            } else if (destAddress.getType() == SSHeadDecoder.IPv6) {
+            } else if (destAddress.getType() == AppConstans.IPv6) {
                 LOGGER.info("not support IPv6 .....");
                 ctx.close();
                 return;
@@ -134,7 +133,7 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
                     .writeBytes(msg.content());
             InetSocketAddress from = (InetSocketAddress) forwardChannel.localAddress();
             LOGGER.debug("从{}:{}向{}:{}发送报文,标记该报文来自 {}:{}", from.getHostName(), from.getPort(), srcAddress.getHostName(), srcAddress.getPort(), destAddress.getHost(), destAddress.getPort());
-            forwardChannel.writeAndFlush(new DatagramPacket(buf, srcAddress));
+            forwardChannel.writeAndFlush(new DatagramPacket(buf, srcAddress));*/
         }
 
         @Override

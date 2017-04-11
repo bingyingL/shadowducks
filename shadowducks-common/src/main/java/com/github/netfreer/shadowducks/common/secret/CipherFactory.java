@@ -19,9 +19,8 @@ public class CipherFactory {
     public static AbstractCipher getCipher(String method) {
         Class<? extends AbstractCipher> clazz = classMap.get(method.toUpperCase());
         if (clazz != null) {
-            AbstractCipher cipher = null;
             try {
-                cipher = clazz.newInstance();
+                return clazz.newInstance();
             } catch (Exception e) {
                 Throwables.propagate(e);
             }

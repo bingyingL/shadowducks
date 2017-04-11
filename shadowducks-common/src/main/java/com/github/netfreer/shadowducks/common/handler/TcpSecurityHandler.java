@@ -12,23 +12,30 @@ import io.netty.channel.ChannelPromise;
 public class TcpSecurityHandler extends ChannelDuplexHandler {
     private final AbstractCipher encrypt;
     private final AbstractCipher decrypt;
+    private final byte[] prefix;
+    private int mark;
 
     public TcpSecurityHandler(PortContext portContext) {
         encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
         decrypt = CipherFactory.getCipher(portContext.getMethod()).init(false, portContext.getPassword());
+        prefix = new byte[decrypt.prefixSize()];
+        mark = 0;
     }
-
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
-        if (buf.readableBytes() >= decrypt.prefixSize()) {
-            byte[] prefix = new byte[decrypt.prefixSize()];
-            buf.readBytes(prefix);
-            decrypt.setPrefix(prefix);
+        while (mark < decrypt.prefixSize() && buf.isReadable()) {
+            prefix[mark] = buf.readByte();
+            mark++;
+            if (mark == decrypt.prefixSize()) {
+                decrypt.setPrefix(prefix);
+            }
         }
-        translate(buf, decrypt);
-        super.channelRead(ctx, msg);
+        if (buf.isReadable()) {
+            translate(buf, decrypt);
+            super.channelRead(ctx, msg);
+        }
 
     }
 

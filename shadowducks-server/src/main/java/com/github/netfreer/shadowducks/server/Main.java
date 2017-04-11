@@ -5,8 +5,7 @@ import com.github.netfreer.shadowducks.common.config.ConfigUtil;
 import com.github.netfreer.shadowducks.common.config.PortContext;
 import com.github.netfreer.shadowducks.common.handler.TcpSecurityHandler;
 import com.github.netfreer.shadowducks.common.handler.UdpSecurityHandler;
-import com.github.netfreer.shadowducks.server.handler.SSHeadDecoder;
-import com.github.netfreer.shadowducks.server.handler.TcpForwardHandler;
+import com.github.netfreer.shadowducks.server.handler.ShadowSocksServerHandler;
 import com.github.netfreer.shadowducks.server.handler.UdpForwardHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -33,7 +32,7 @@ public class Main {
     public static void main(String[] args) {
         AppConfig config = ConfigUtil.loadConfig(args);
         config.setServerAddress("0.0.0.0");
-        config.setTimeout(300);
+        config.setTimeout(10000);
         config.getPorts().add(new PortContext(1999, "aes-256-cfb", "password"));
         new Main().start(config);
     }
@@ -50,20 +49,19 @@ public class Main {
                     .channel(NioServerSocketChannel.class)
 //                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childOption(ChannelOption.TCP_NODELAY, true)
+                    .childOption(ChannelOption.AUTO_READ, false)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
                             PortContext portContext = config.getPortContext(ch.localAddress().getPort());
                             ch.pipeline().addLast(new TcpSecurityHandler(portContext));
-                            ch.pipeline().addLast(new SSHeadDecoder(null));
-                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-                            ch.pipeline().addLast(new TcpForwardHandler());
+                            ch.pipeline().addLast(new ShadowSocksServerHandler(config));
                         }
                     });
             for (PortContext tuple : config.getPorts()) {
                 try {
                     Channel channel = tcpBootstrap.bind(config.getServerAddress(), tuple.getPort()).sync().channel();
-                    log.info("Start listen tcp port {} on address {} , method:{} , password:{} .", config.getServerAddress(),
+                    log.info("Start listen tcp port {} on address {}, method: {}, password: {}.", config.getServerAddress(),
                             tuple.getPort(), tuple.getMethod(), tuple.getPassword());
                     initChannelAttribute(tuple, channel);
                 } catch (Exception e) {
@@ -88,7 +86,7 @@ public class Main {
             for (PortContext tuple : config.getPorts()) {
                 try {
                     Channel channel = udpBootstrap.bind(config.getServerAddress(), tuple.getPort()).sync().channel();
-                    log.info("Start listen udp port {} on address {} , method:{} , password:{} .", config.getServerAddress(),
+                    log.info("Start listen udp port {} on address {}, method: {}, password: {}.", config.getServerAddress(),
                             tuple.getPort(), tuple.getMethod(), tuple.getPassword());
                     initChannelAttribute(tuple, channel);
                 } catch (Exception e) {
