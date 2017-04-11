@@ -14,7 +14,7 @@
         <module>shadowducks-server</module>
         <module>shadowducks-panel</module>
     </modules>
-    <url>https://github.com/landyking/shadowducks</url>
+    <url>https://github.com/netfreer/shadowducks</url>
     <contributors>
         <contributor>
             <name>Landy King</name>
