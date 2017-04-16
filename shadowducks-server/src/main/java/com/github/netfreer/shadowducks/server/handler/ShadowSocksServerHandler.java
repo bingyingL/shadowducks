@@ -43,7 +43,7 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext originalCtx, Object msg) throws Exception {
         if (destChannel == null) {
             ByteBuf buf = (ByteBuf) msg;
-            final InetSocketAddress address = tryParseAddress(buf);
+            final InetSocketAddress address = HandlerCommons.tryParseAddress(buf);
             if (address != null) {
                 Bootstrap bootstrap = new Bootstrap()
                         .group(originalCtx.channel().eventLoop())
@@ -86,46 +86,5 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private InetSocketAddress tryParseAddress(ByteBuf buf) {
-        buf.markReaderIndex();
-        InetSocketAddress address = null;
-        if (buf.readableBytes() > 3) {
-            short addressType = buf.readUnsignedByte();
-            if (addressType == AppConstans.IPv4) {
-                if (buf.readableBytes() >= 6) {
-                    String ip = buf.readUnsignedByte() + "." + buf.readUnsignedByte()
-                            + "." + buf.readUnsignedByte() + "." + buf.readUnsignedByte();
-                    int port = buf.readUnsignedShort();
-                    address = new InetSocketAddress(ip, port);
-                }
-            } else if (addressType == AppConstans.IPv6) {
-                if (buf.readableBytes() >= 16) {
-                    String host = String.format("%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-                            buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(),
-                            buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(),
-                            buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(),
-                            buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte(), buf.readUnsignedByte());
-                    int port = buf.readUnsignedShort();
-                    address = new InetSocketAddress(host, port);
-                }
-            } else if (addressType == AppConstans.Domain) {
-                short len = buf.readUnsignedByte();
-                if (buf.readableBytes() >= (len + 2)) {
-                    byte[] tmp = new byte[len];
-                    buf.readBytes(tmp);
-                    String domain = new String(tmp, CharsetUtil.UTF_8);
-                    int port = buf.readUnsignedShort();
-                    address = new InetSocketAddress(domain, port);
-                }
-            } else {
-                throw new IllegalArgumentException("invalid address type " + addressType);
-            }
-        }
-        if (address != null) {
-            return address;
-        } else {
-            buf.resetReaderIndex();
-            return null;
-        }
-    }
+
 }
