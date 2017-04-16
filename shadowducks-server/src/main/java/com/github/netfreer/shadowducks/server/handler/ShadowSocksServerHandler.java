@@ -2,11 +2,9 @@ package com.github.netfreer.shadowducks.server.handler;
 
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.handler.TransferHandler;
-import com.github.netfreer.shadowducks.common.utils.AppConstans;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

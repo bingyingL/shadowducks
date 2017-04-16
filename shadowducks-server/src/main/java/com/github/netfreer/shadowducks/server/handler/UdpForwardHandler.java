@@ -1,6 +1,5 @@
 package com.github.netfreer.shadowducks.server.handler;
 
-import com.github.netfreer.shadowducks.server.dns.DNSServer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
