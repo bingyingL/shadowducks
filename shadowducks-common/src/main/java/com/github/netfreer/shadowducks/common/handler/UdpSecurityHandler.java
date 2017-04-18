@@ -13,12 +13,12 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-public class UdpSecurityHandler2 extends ChannelDuplexHandler {
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(UdpSecurityHandler2.class);
+public class UdpSecurityHandler extends ChannelDuplexHandler {
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(UdpSecurityHandler.class);
     private final AbstractCipher encrypt;
     private final AbstractCipher decrypt;
 
-    public UdpSecurityHandler2(PortContext portContext) {
+    public UdpSecurityHandler(PortContext portContext) {
         encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
         decrypt = CipherFactory.getCipher(portContext.getMethod()).init(false, portContext.getPassword());
     }

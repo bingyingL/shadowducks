@@ -4,7 +4,7 @@ import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.ConfigUtil;
 import com.github.netfreer.shadowducks.common.config.PortContext;
 import com.github.netfreer.shadowducks.common.handler.TcpSecurityHandler;
-import com.github.netfreer.shadowducks.common.handler.UdpSecurityHandler2;
+import com.github.netfreer.shadowducks.common.handler.UdpSecurityHandler;
 import com.github.netfreer.shadowducks.server.handler.ShadowSocksServerHandler;
 import com.github.netfreer.shadowducks.server.handler.UdpForwardHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -75,7 +75,7 @@ public class Main {
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             Channel ch = ctx.channel();
                             PortContext portContext = config.getPortContext(((InetSocketAddress) ch.localAddress()).getPort());
-                            ch.pipeline().addLast(new UdpSecurityHandler2(portContext));
+                            ch.pipeline().addLast(new UdpSecurityHandler(portContext));
                             ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new UdpForwardHandler());
                             ch.pipeline().remove(this);
