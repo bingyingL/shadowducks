@@ -33,9 +33,9 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
         if (destAddress != null && buf.isReadable()) {
             final ByteBuf remain = buf.readBytes(buf.readableBytes());
             LOGGER.debug("{}:{} 接收到来自 {}:{} 的UDP包, 该包的目的地址是 {}:{}",
-                    msg.recipient().getHostName(), msg.recipient().getPort(),
-                    srcAddress.getHostName(), srcAddress.getPort(),
-                    destAddress.getHostName(), destAddress.getPort());
+                    msg.recipient().getAddress().getHostAddress(), msg.recipient().getPort(),
+                    srcAddress.getAddress().getHostAddress(), srcAddress.getPort(),
+                    destAddress.getAddress().getHostAddress(), destAddress.getPort());
             final InetSocketAddress finalDestAddress = new InetSocketAddress(destAddress.getHostName(), destAddress.getPort());
             if (src2channel.containsKey(srcAddress.toString())) {
                 Channel channel = src2channel.get(srcAddress.toString());
@@ -100,7 +100,8 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
                     .writeBytes(msg.content());
             InetSocketAddress from = (InetSocketAddress) forwardChannel.localAddress();
             LOGGER.debug("从{}:{}向{}:{}发送报文,标记该报文来自 {}:{}",
-                    from.getHostName(), from.getPort(), originalAddress.getAddress().getHostAddress(), originalAddress.getPort(),
+                    from.getAddress().getHostAddress(), from.getPort(),
+                    originalAddress.getAddress().getHostAddress(), originalAddress.getPort(),
                     inetAddress.getHostAddress(),sender.getPort());
             forwardChannel.writeAndFlush(new DatagramPacket(buf, originalAddress));
         }

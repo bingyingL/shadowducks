@@ -15,18 +15,19 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class UdpSecurityHandler extends ChannelDuplexHandler {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(UdpSecurityHandler.class);
-    private final AbstractCipher encrypt;
-    private final AbstractCipher decrypt;
+    private final PortContext portContext;
 
     public UdpSecurityHandler(PortContext portContext) {
-        encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
-        decrypt = CipherFactory.getCipher(portContext.getMethod()).init(false, portContext.getPassword());
+        this.portContext = portContext;
+
+
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         DatagramPacket packet = (DatagramPacket) msg;
         try {
+            AbstractCipher decrypt = CipherFactory.getCipher(portContext.getMethod()).init(false, portContext.getPassword());
             ByteBuf buf = packet.content();
             byte[] prefix = new byte[decrypt.prefixSize()];
             buf.readBytes(prefix);
@@ -35,7 +36,7 @@ public class UdpSecurityHandler extends ChannelDuplexHandler {
             translate(buf, decrypt);
             super.channelRead(ctx, msg);
         } catch (Exception e) {
-            logger.warn("receive one invalid DatagramPacket from: {}", packet.sender().toString());
+            logger.warn("receive one invalid DatagramPacket from: {}", packet.sender().toString(), e);
             ReferenceCountUtil.safeRelease(msg);
         }
     }
@@ -52,6 +53,7 @@ public class UdpSecurityHandler extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        AbstractCipher encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
         DatagramPacket packet = (DatagramPacket) msg;
         ByteBuf buf = packet.content();
         translate(buf, encrypt);

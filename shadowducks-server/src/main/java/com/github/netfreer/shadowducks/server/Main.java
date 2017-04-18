@@ -76,7 +76,7 @@ public class Main {
                             Channel ch = ctx.channel();
                             PortContext portContext = config.getPortContext(((InetSocketAddress) ch.localAddress()).getPort());
                             ch.pipeline().addLast(new UdpSecurityHandler(portContext));
-                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
+//                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new UdpForwardHandler());
                             ch.pipeline().remove(this);
                             ctx.fireChannelActive();

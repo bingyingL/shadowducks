@@ -7,21 +7,20 @@ import java.net.UnknownHostException;
 /**
  * Description：TODO <br/>
  *
- * @author: 黄地
+ * @author: landy
  * @date: 2016/08/09 10:00
  * note:
  */
 public class AddressUtils {
-    public final static int FAKE_NETWORK_MASK=ipStringToInt("255.255.0.0");
-    public final static int FAKE_NETWORK_IP=ipStringToInt("10.231.0.0");
+    public final static int FAKE_NETWORK_MASK = ipStringToInt("255.255.0.0");
+    public final static int FAKE_NETWORK_IP = ipStringToInt("10.231.0.0");
 
-    public static InetAddress ipIntToInet4Address(int ip){
-        byte[] ipAddress=new byte[4];
+    public static InetAddress ipIntToInet4Address(int ip) {
+        byte[] ipAddress = new byte[4];
         writeInt(ipAddress, 0, ip);
         try {
-            return  Inet4Address.getByAddress(ipAddress);
+            return Inet4Address.getByAddress(ipAddress);
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
@@ -33,7 +32,7 @@ public class AddressUtils {
     }
 
     public static String ipBytesToString(byte[] ip) {
-        return String.format("%s.%s.%s.%s", ip[0] & 0x00FF,ip[1] & 0x00FF,ip[2] & 0x00FF,ip[3] & 0x00FF);
+        return String.format("%s.%s.%s.%s", ip[0] & 0x00FF, ip[1] & 0x00FF, ip[2] & 0x00FF, ip[3] & 0x00FF);
     }
 
     public static int ipStringToInt(String ip) {
