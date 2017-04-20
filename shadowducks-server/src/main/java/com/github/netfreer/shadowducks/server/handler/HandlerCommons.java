@@ -1,6 +1,7 @@
 package com.github.netfreer.shadowducks.server.handler;
 
 import com.github.netfreer.shadowducks.common.utils.AppConstans;
+import com.google.common.io.CharStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.CharsetUtil;
 
@@ -37,9 +38,9 @@ public class HandlerCommons {
             } else if (addressType == AppConstans.Domain) {
                 short len = buf.readUnsignedByte();
                 if (buf.readableBytes() >= (len + 2)) {
-                    String domain = buf.toString(buf.readerIndex(), len, CharsetUtil.UTF_8);
+                    CharSequence domain = buf.readCharSequence(len, CharsetUtil.UTF_8);
                     int port = buf.readUnsignedShort();
-                    address = new InetSocketAddress(domain, port);
+                    address = new InetSocketAddress(domain.toString(), port);
                 }
             } else {
                 throw new IllegalArgumentException("invalid address type " + addressType);
