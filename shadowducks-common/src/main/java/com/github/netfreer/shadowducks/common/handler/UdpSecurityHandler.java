@@ -57,7 +57,7 @@ public class UdpSecurityHandler extends ChannelDuplexHandler {
         DatagramPacket packet = (DatagramPacket) msg;
         ByteBuf buf = packet.content();
         translate(buf, encrypt);
-        packet.replace(Unpooled.wrappedBuffer(Unpooled.wrappedBuffer(encrypt.getPrefix()), buf));
+        packet = packet.replace(Unpooled.wrappedBuffer(Unpooled.wrappedBuffer(encrypt.getPrefix()), buf));
         super.write(ctx, packet, promise);
     }
 }
