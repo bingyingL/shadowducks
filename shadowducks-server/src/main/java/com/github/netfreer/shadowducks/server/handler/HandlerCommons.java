@@ -37,9 +37,7 @@ public class HandlerCommons {
             } else if (addressType == AppConstans.Domain) {
                 short len = buf.readUnsignedByte();
                 if (buf.readableBytes() >= (len + 2)) {
-                    byte[] tmp = new byte[len];
-                    buf.readBytes(tmp);
-                    String domain = new String(tmp, CharsetUtil.UTF_8);
+                    String domain = buf.toString(buf.readerIndex(), len, CharsetUtil.UTF_8);
                     int port = buf.readUnsignedShort();
                     address = new InetSocketAddress(domain, port);
                 }

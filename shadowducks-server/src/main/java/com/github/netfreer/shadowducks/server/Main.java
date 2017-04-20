@@ -32,7 +32,7 @@ public class Main {
     public static void main(String[] args) {
         AppConfig config = ConfigUtil.loadConfig(args);
         config.setServerAddress("0.0.0.0");
-        config.setTimeout(10000);
+        config.setTimeout(60*1000);
         config.getPorts().add(new PortContext(1999, "aes-256-cfb", "password"));
         new Main().start(config);
     }

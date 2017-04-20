@@ -67,10 +67,10 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
                         if (!channelFuture.isSuccess()) {
-                            LOG.warn("connect failure, {}:{}", address.getHostName(), address.getPort());
+                            LOG.warn("connect failure {}:{}, {} ", address.getHostName(), address.getPort(),channelFuture.cause().getMessage());
                             originalCtx.channel().close();
                         } else {
-                            LOG.info("connect success, {}:{}", address.getHostName(), address.getPort());
+                            LOG.info("connect success {}:{}", address.getHostName(), address.getPort());
                         }
                     }
                 });
