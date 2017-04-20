@@ -5,6 +5,10 @@ import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.ClosedChannelException;
+
 /**
  * @author: landy
  * @date: 2017-04-11 20:26
@@ -17,7 +21,25 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
         @Override
         public void operationComplete(ChannelFuture future) {
             if (!future.isSuccess()) {
-                future.channel().pipeline().fireExceptionCaught(future.cause());
+                Throwable cause = future.cause();
+                if (cause != null) {
+                    InetSocketAddress remoteAddress = (InetSocketAddress) output.remoteAddress();
+                    String address = remoteAddress.isUnresolved() ? remoteAddress.getAddress().getHostAddress() : remoteAddress.getHostName();
+                    if (cause instanceof ClosedChannelException) {
+                        //ignore
+                    } else {
+                        String exName = cause.getClass().getSimpleName();
+                        if (cause instanceof IOException) {
+                            LOG.warn("Write to {}:{} {}: {}", address, remoteAddress.getPort(), exName, cause.getMessage());
+                            output.close();
+                        } else {
+                            LOG.warn("Write to {}:{} {}", address, remoteAddress.getPort(), exName, cause);
+                            output.close();
+                        }
+                    }
+                }
+                output.close();
+                localCtx.close();
             } else {
                 localCtx.read();
             }
@@ -68,7 +90,18 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOG.warn("data forward transfer exception", cause);
+        InetSocketAddress from = (InetSocketAddress) ctx.channel().remoteAddress();
+        String host = from.isUnresolved() ? from.getAddress().getHostAddress() : from.getHostName();
+        if (cause instanceof ClosedChannelException) {
+            //ignore
+        } else {
+            String exName = cause.getClass().getSimpleName();
+            if (cause instanceof IOException) {
+                LOG.warn("Read from {}:{} {}: {}", host, from.getPort(), exName, cause.getMessage());
+            } else {
+                LOG.warn("Read from {}:{} {}", host, from.getPort(), exName, cause);
+            }
+        }
         ctx.close();
     }
 }
