@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.github.netfreer" level="INFO"/>
+    <logger name="com.github.netfreer" level="DEBUG"/>
     <root level="info">
         <appender-ref ref="stdout"/>
     </root>
