@@ -18,7 +18,7 @@ import java.util.List;
  * @author: landy
  * @date: 2017-04-10 23:30
  */
-public class AES256CFBCipher extends AbstractCipher {
+public class AES256CFBCipher extends AbstractStreamCipher {
     private CFBBlockCipher cipher;
 
     @Override
