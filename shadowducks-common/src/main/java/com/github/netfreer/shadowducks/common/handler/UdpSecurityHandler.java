@@ -33,7 +33,7 @@ public class UdpSecurityHandler extends ChannelDuplexHandler {
             buf.readBytes(prefix);
             buf.discardReadBytes();
             decrypt.setPrefix(prefix);
-            translate(buf, decrypt);
+            decrypt.translate(buf);
             super.channelRead(ctx, msg);
         } catch (Exception e) {
             logger.warn("receive one invalid DatagramPacket from: {}", packet.sender().toString(), e);
@@ -41,22 +41,12 @@ public class UdpSecurityHandler extends ChannelDuplexHandler {
         }
     }
 
-    private void translate(ByteBuf buf, AbstractCipher cipher) {
-        int i = buf.readerIndex();
-        buf.markReaderIndex();
-        byte[] tmp = new byte[buf.readableBytes()];
-        buf.readBytes(tmp);
-        tmp = cipher.process(tmp);
-        buf.setBytes(i, tmp);
-        buf.resetReaderIndex();
-    }
-
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         AbstractCipher encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
         DatagramPacket packet = (DatagramPacket) msg;
         ByteBuf buf = packet.content();
-        translate(buf, encrypt);
+        encrypt.translate(buf);
         packet = packet.replace(Unpooled.wrappedBuffer(Unpooled.wrappedBuffer(encrypt.getPrefix()), buf));
         super.write(ctx, packet, promise);
     }

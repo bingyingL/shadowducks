@@ -1,5 +1,7 @@
 package com.github.netfreer.shadowducks.common.secret;
 
+import io.netty.buffer.ByteBuf;
+
 import java.security.SecureRandom;
 
 /**
@@ -41,7 +43,6 @@ public abstract class AbstractCipher {
 
     public abstract int keySize();
 
-    public abstract byte[] process(byte[] data);
 
     public final void setPrefix(byte[] prefix) {
         if (this.prefix != null) {
@@ -54,4 +55,6 @@ public abstract class AbstractCipher {
     public byte[] getPrefix() {
         return prefix;
     }
+
+    public abstract void translate(ByteBuf buf);
 }

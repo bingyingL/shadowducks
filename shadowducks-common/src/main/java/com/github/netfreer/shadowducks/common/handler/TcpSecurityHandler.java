@@ -33,23 +33,12 @@ public class TcpSecurityHandler extends ChannelDuplexHandler {
             }
         }
         if (buf.isReadable()) {
-            translate(buf, decrypt);
-            super.channelRead(ctx, msg);
+            decrypt.translate(buf);
+            if (buf.isReadable()) {
+                super.channelRead(ctx, msg);
+            }
         }
 
-    }
-
-    private void translate(ByteBuf msg, AbstractCipher cipher) {
-        if (msg.isReadable()) {
-            ByteBuf buf = msg;
-            int i = buf.readerIndex();
-            buf.markReaderIndex();
-            byte[] tmp = new byte[buf.readableBytes()];
-            buf.readBytes(tmp);
-            tmp = cipher.process(tmp);
-            buf.setBytes(i, tmp);
-            buf.resetReaderIndex();
-        }
     }
 
     private boolean writePrefix = false;
@@ -60,7 +49,7 @@ public class TcpSecurityHandler extends ChannelDuplexHandler {
             writePrefix = true;
             ctx.write(Unpooled.wrappedBuffer(encrypt.getPrefix()));
         }
-        translate((ByteBuf) msg, encrypt);
+        encrypt.translate((ByteBuf) msg);
         super.write(ctx, msg, promise);
     }
 }
