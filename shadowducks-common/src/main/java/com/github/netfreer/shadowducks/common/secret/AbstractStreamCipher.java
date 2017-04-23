@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
  * @date: 2017-04-21 23:03
  */
 public abstract class AbstractStreamCipher extends AbstractCipher {
-    @Override
+
     public void translate(ByteBuf msg) {
         if (msg.isReadable()) {
             ByteBuf buf = msg;

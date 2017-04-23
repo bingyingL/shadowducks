@@ -3,8 +3,7 @@ package com.github.netfreer.shadowducks.server;
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.ConfigUtil;
 import com.github.netfreer.shadowducks.common.config.PortContext;
-import com.github.netfreer.shadowducks.common.handler.TcpSecurityHandler;
-import com.github.netfreer.shadowducks.common.handler.UdpSecurityHandler;
+import com.github.netfreer.shadowducks.common.utils.DucksFactory;
 import com.github.netfreer.shadowducks.server.handler.ShadowSocksServerHandler;
 import com.github.netfreer.shadowducks.server.handler.UdpForwardHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -14,8 +13,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +29,7 @@ public class Main {
     public static void main(String[] args) {
         AppConfig config = ConfigUtil.loadConfig(args);
         config.setServerAddress("0.0.0.0");
-        config.setTimeout(30*1000);
+        config.setTimeout(30 * 1000);
         config.getPorts().add(new PortContext(2999, "aes-256-cfb", "password"));
         new Main().start(config);
     }
@@ -54,7 +51,7 @@ public class Main {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
                             PortContext portContext = config.getPortContext(ch.localAddress().getPort());
-                            ch.pipeline().addLast(new TcpSecurityHandler(portContext));
+                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, true));
                             ch.pipeline().addLast(new ShadowSocksServerHandler(config));
                         }
                     });
@@ -75,7 +72,7 @@ public class Main {
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             Channel ch = ctx.channel();
                             PortContext portContext = config.getPortContext(((InetSocketAddress) ch.localAddress()).getPort());
-                            ch.pipeline().addLast(new UdpSecurityHandler(portContext));
+                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, false));
 //                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new UdpForwardHandler());
                             ch.pipeline().remove(this);

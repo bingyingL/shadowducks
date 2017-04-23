@@ -55,6 +55,4 @@ public abstract class AbstractCipher {
     public byte[] getPrefix() {
         return prefix;
     }
-
-    public abstract void translate(ByteBuf buf);
 }

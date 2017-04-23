@@ -1,23 +1,24 @@
 package com.github.netfreer.shadowducks.common.handler;
 
 import com.github.netfreer.shadowducks.common.config.PortContext;
-import com.github.netfreer.shadowducks.common.secret.AbstractCipher;
-import com.github.netfreer.shadowducks.common.secret.CipherFactory;
+import com.github.netfreer.shadowducks.common.secret.AbstractStreamCipher;
+import com.github.netfreer.shadowducks.common.utils.DucksFactory;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
-public class TcpSecurityHandler extends ChannelDuplexHandler {
-    private final AbstractCipher encrypt;
-    private final AbstractCipher decrypt;
+public class StreamTcpHandler extends ChannelDuplexHandler {
+    private final AbstractStreamCipher encrypt;
+    private final AbstractStreamCipher decrypt;
     private final byte[] prefix;
     private int mark;
 
-    public TcpSecurityHandler(PortContext portContext) {
-        encrypt = CipherFactory.getCipher(portContext.getMethod()).init(true, portContext.getPassword());
-        decrypt = CipherFactory.getCipher(portContext.getMethod()).init(false, portContext.getPassword());
+    public StreamTcpHandler(PortContext portContext) {
+        encrypt = DucksFactory.getStreamCipher(portContext.getMethod());
+        encrypt.init(true, portContext.getPassword());
+        decrypt = DucksFactory.getStreamCipher(portContext.getMethod());
+        decrypt.init(false, portContext.getPassword());
         prefix = new byte[decrypt.prefixSize()];
         mark = 0;
     }
@@ -46,8 +47,10 @@ public class TcpSecurityHandler extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (!writePrefix) {
+            ByteBuf buf = ctx.alloc().ioBuffer(encrypt.prefixSize());
+            buf.writeBytes(encrypt.getPrefix());
+            ctx.write(buf);
             writePrefix = true;
-            ctx.write(Unpooled.wrappedBuffer(encrypt.getPrefix()));
         }
         encrypt.translate((ByteBuf) msg);
         super.write(ctx, msg, promise);
