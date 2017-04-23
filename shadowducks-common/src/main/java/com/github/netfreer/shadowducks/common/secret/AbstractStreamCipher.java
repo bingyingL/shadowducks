@@ -20,7 +20,13 @@ public abstract class AbstractStreamCipher extends AbstractCipher {
             buf.resetReaderIndex();
         }
     }
+    @Override
+    public int prefixSize() {
+        return ivLength();
+    }
 
-    abstract byte[] process(byte[] data);
+    protected abstract int ivLength();
+
+    protected abstract byte[] process(byte[] data);
 
 }

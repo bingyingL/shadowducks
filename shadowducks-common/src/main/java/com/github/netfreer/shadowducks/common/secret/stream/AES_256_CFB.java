@@ -1,5 +1,6 @@
-package com.github.netfreer.shadowducks.common.secret;
+package com.github.netfreer.shadowducks.common.secret.stream;
 
+import com.github.netfreer.shadowducks.common.secret.AbstractStreamCipher;
 import com.google.common.base.Throwables;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
@@ -13,11 +14,11 @@ import java.util.Arrays;
  * @author: landy
  * @date: 2017-04-10 23:30
  */
-public class AES256CFBCipher extends AbstractStreamCipher {
+public class AES_256_CFB extends AbstractStreamCipher {
     private CFBBlockCipher cipher;
 
     @Override
-    public int prefixSize() {
+    protected int ivLength() {
         return 16;
     }
 

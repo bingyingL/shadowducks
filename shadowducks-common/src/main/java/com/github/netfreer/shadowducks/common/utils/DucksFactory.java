@@ -5,10 +5,8 @@ import com.github.netfreer.shadowducks.common.handler.AEADTcpHandler;
 import com.github.netfreer.shadowducks.common.handler.AEADUdpHandler;
 import com.github.netfreer.shadowducks.common.handler.StreamTcpHandler;
 import com.github.netfreer.shadowducks.common.handler.StreamUdpHandler;
-import com.github.netfreer.shadowducks.common.secret.AES256CFBCipher;
-import com.github.netfreer.shadowducks.common.secret.AbstractAEADCipher;
-import com.github.netfreer.shadowducks.common.secret.AbstractCipher;
-import com.github.netfreer.shadowducks.common.secret.AbstractStreamCipher;
+import com.github.netfreer.shadowducks.common.secret.*;
+import com.github.netfreer.shadowducks.common.secret.stream.AES_256_CFB;
 import com.google.common.base.Throwables;
 import io.netty.channel.ChannelHandler;
 
@@ -50,7 +48,8 @@ public class DucksFactory {
     private static Map<String, Class<? extends AbstractCipher>> cipherClassMap = new HashMap<String, Class<? extends AbstractCipher>>();
 
     static {
-        cipherClassMap.put(STREAM_AES_256_CFB, AES256CFBCipher.class);
+        cipherClassMap.put(STREAM_AES_256_CFB, AES_256_CFB.class);
+        cipherClassMap.put(AEAD_CHACHA20_POLY1305, com.github.netfreer.shadowducks.common.secret.aead.AEAD_CHACHA20_POLY1305.class);
     }
 
     public static AbstractStreamCipher getStreamCipher(String method) {

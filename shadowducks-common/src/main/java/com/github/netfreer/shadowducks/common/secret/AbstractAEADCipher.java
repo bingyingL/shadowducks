@@ -26,9 +26,16 @@ public abstract class AbstractAEADCipher extends AbstractCipher {
         return len;
     }
 
-    protected abstract byte[] decrypt(int i, byte[] lenData, byte[] lenTag);
+    @Override
+    public int prefixSize() {
+        return saltSize();
+    }
 
-    protected abstract Tuple<byte[], byte[]> encrypt(int i, byte[] data);
+    protected abstract int saltSize();
+
+    protected abstract byte[] decrypt(int nonce, byte[] lenData, byte[] lenTag);
+
+    protected abstract Tuple<byte[], byte[]> encrypt(int nonce, byte[] data);
 
     public ByteBuf decryptPayload(ChannelHandlerContext ctx, ByteBuf in, int payloadLength) {
         byte[] data = new byte[payloadLength];
@@ -46,9 +53,20 @@ public abstract class AbstractAEADCipher extends AbstractCipher {
     public abstract int nonceSize();
 
     public void encryptLength(int actual, ByteBuf out) {
-//        ByteBuf buf = Unpooled.buffer(2);
-
+        Unpooled.buffer(2).writeShort(actual);
+        byte[] data = new byte[2];
+        data[0] = (byte) (actual >>> 8);
+        data[1] = (byte) actual;
+        Tuple<byte[], byte[]> encrypted = encrypt(encryptNonce++, data);
+        out.writeBytes(encrypted.getFirst());
+        out.writeBytes(encrypted.getSecond());
     }
 
-    public abstract void encryptPayload(ByteBuf msg, ByteBuf out, int actual);
+    public void encryptPayload(ByteBuf msg, ByteBuf out, int actual) {
+        byte[] data = new byte[actual];
+        msg.readBytes(data);
+        Tuple<byte[], byte[]> encrypted = encrypt(encryptNonce++, data);
+        out.writeBytes(encrypted.getFirst());
+        out.writeBytes(encrypted.getSecond());
+    }
 }
