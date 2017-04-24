@@ -30,7 +30,7 @@ public class Main {
         AppConfig config = ConfigUtil.loadConfig(args);
         config.setServerAddress("0.0.0.0");
         config.setTimeout(30 * 1000);
-        config.getPorts().add(new PortContext(2999, DucksFactory.AEAD_CHACHA20_POLY1305, "password"));
+        config.getPorts().add(new PortContext(2999, DucksFactory.STREAM_AES_256_CFB, "password"));
         new Main().start(config);
     }
 
@@ -46,7 +46,8 @@ public class Main {
                     .channel(NioServerSocketChannel.class)
 //                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.AUTO_READ, false)
+//                    .childOption(ChannelOption.AUTO_READ, false)
+                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024, 100 * 1024))
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {

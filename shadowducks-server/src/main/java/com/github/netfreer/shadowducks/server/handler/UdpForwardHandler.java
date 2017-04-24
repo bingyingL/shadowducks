@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private static final Logger LOG = LoggerFactory.getLogger(UdpForwardHandler.class);
     public static final Logger LOGGER = LoggerFactory.getLogger(UdpForwardHandler.class);
     private Map<String, Channel> src2channel = new HashMap<String, Channel>();
 
@@ -65,6 +66,11 @@ public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacke
         }
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.warn("UDP forward failure: {}", cause.getMessage());
+        ctx.close();
+    }
 
     private class InnerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         private final Channel forwardChannel;

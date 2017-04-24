@@ -26,14 +26,12 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        ctx.read();
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         super.channelReadComplete(ctx);
         if (destChannel == null) {
-            ctx.read();
         }
     }
 
@@ -46,17 +44,17 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
                 Bootstrap bootstrap = new Bootstrap()
                         .group(originalCtx.channel().eventLoop())
                         .channel(originalCtx.channel().getClass())
-                        .option(ChannelOption.AUTO_READ, false)
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getTimeout())
+                        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024, 100 * 1024))
                         .handler(new ChannelInitializer<Channel>() {
                             @Override
                             protected void initChannel(Channel ch) throws Exception {
-                                ch.pipeline().addLast(new TransferHandler(originalCtx.channel()));
+                                ch.pipeline().addLast(new TransferHandler(originalCtx.channel(), "server"));
                                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                     @Override
                                     public void channelActive(ChannelHandlerContext destCtx) throws Exception {
                                         originalCtx.pipeline().remove(ShadowSocksServerHandler.this);
-                                        originalCtx.pipeline().addLast(new TransferHandler(destCtx.channel()));
+                                        originalCtx.pipeline().addLast(new TransferHandler(destCtx.channel(), "client"));
                                     }
                                 });
                             }
@@ -67,7 +65,7 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
                         if (!channelFuture.isSuccess()) {
-                            LOG.warn("connect failure {}:{}, {} ", address.getHostName(), address.getPort(),channelFuture.cause().getMessage());
+                            LOG.warn("connect failure {}:{}, {} ", address.getHostName(), address.getPort(), channelFuture.cause().getMessage());
                             originalCtx.channel().close();
                         } else {
                             LOG.info("connect success {}:{}", address.getHostName(), address.getPort());
