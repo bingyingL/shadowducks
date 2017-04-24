@@ -70,10 +70,14 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
         if (ctx.channel().isWritable()) {
-            LOG.debug("[{}] channel writable: true, buffer empty: {}", tag, ctx.channel().config().getWriteBufferLowWaterMark());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("[{}] channel writable: true, buffer empty: {}", tag, ctx.channel().unsafe().outboundBuffer().totalPendingWriteBytes());
+            }
             output.config().setAutoRead(true);
         } else {
-            LOG.debug("[{}] channel writable: false, buffer full: {}", tag, ctx.channel().config().getWriteBufferHighWaterMark());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("[{}] channel writable: false, buffer full: {}", tag, ctx.channel().unsafe().outboundBuffer().totalPendingWriteBytes());
+            }
             output.config().setAutoRead(false);
         }
     }
