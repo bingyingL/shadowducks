@@ -44,7 +44,7 @@ public class AEADTcpHandler extends ByteToMessageCodec<ByteBuf> {
             } else {
                 actual = total;
             }
-            encrypt.encryptLength(actual, out);
+            encrypt.encryptLength(actual & MAX_DATA_LEN, out);
             encrypt.encryptPayload(msg, out, actual);
 
             total -= actual;
@@ -88,7 +88,7 @@ public class AEADTcpHandler extends ByteToMessageCodec<ByteBuf> {
                     break;
                 case payload:
                     if (in.isReadable(payloadLength + decrypt.tagSize())) {
-                        ByteBuf data = decrypt.decryptPayload(ctx,in, payloadLength);
+                        ByteBuf data = decrypt.decryptPayload(ctx, in, payloadLength);
                         int readableLen = data.readableBytes();
                         if (readableLen != payloadLength) {
                             throw new IllegalStateException("Decrypted data size:" + readableLen
@@ -105,5 +105,11 @@ public class AEADTcpHandler extends ByteToMessageCodec<ByteBuf> {
 
             }
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.warn("AEAD cipher translate failure", cause);
+        ctx.close();
     }
 }

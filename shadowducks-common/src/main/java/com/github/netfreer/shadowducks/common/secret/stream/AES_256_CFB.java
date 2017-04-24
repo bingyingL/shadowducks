@@ -37,25 +37,6 @@ public class AES_256_CFB extends AbstractStreamCipher {
         cipher.init(isEncrypt(), params);
     }
 
-    private byte[] getKeyFromPass(int keyLength, String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            int length = (keyLength + 15) / 16 * 16;
-            byte[] passwordBytes = password.getBytes("UTF-8");
-            byte[] temp = digest.digest(passwordBytes);
-            byte[] key = Arrays.copyOf(temp, length);
-            for (int i = 1; i < length / 16; i++) {
-                temp = Arrays.copyOf(temp, 16 + passwordBytes.length);
-                System.arraycopy(passwordBytes, 0, temp, 16, passwordBytes.length);
-                System.arraycopy(digest.digest(temp), 0, key, i * 16, 16);
-            }
-            return Arrays.copyOf(key, keyLength);
-        } catch (Exception e) {
-            Throwables.propagate(e);
-        }
-        return new byte[keyLength];
-    }
-
 
     @Override
     public byte[] process(byte[] tmp) {

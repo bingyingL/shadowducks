@@ -30,7 +30,7 @@ public class Main {
         AppConfig config = ConfigUtil.loadConfig(args);
         config.setServerAddress("0.0.0.0");
         config.setTimeout(30 * 1000);
-        config.getPorts().add(new PortContext(2999, "aes-256-cfb", "password"));
+        config.getPorts().add(new PortContext(2999, DucksFactory.AEAD_CHACHA20_POLY1305, "password"));
         new Main().start(config);
     }
 

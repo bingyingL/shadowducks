@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @date: 2017-04-21 23:03
  */
 public abstract class AbstractAEADCipher extends AbstractCipher {
-    public static final String info = "ss-subkey";
+    public static final String INFO = "ss-subkey";
     private int decryptNonce = 0;
     private int encryptNonce = 0;
 
@@ -53,7 +53,6 @@ public abstract class AbstractAEADCipher extends AbstractCipher {
     public abstract int nonceSize();
 
     public void encryptLength(int actual, ByteBuf out) {
-        Unpooled.buffer(2).writeShort(actual);
         byte[] data = new byte[2];
         data[0] = (byte) (actual >>> 8);
         data[1] = (byte) actual;
