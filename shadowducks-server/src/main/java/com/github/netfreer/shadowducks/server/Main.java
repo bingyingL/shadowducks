@@ -28,9 +28,6 @@ public class Main {
 
     public static void main(String[] args) {
         AppConfig config = ConfigUtil.loadConfig(args);
-        config.setServerAddress("0.0.0.0");
-        config.setTimeout(30 * 1000);
-        config.getPorts().add(new PortContext(2999, DucksFactory.STREAM_AES_256_CFB, "password"));
         new Main().start(config);
     }
 
