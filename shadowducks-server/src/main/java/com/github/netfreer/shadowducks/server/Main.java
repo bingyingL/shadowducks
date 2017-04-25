@@ -43,8 +43,8 @@ public class Main {
                     .channel(NioServerSocketChannel.class)
 //                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childOption(ChannelOption.TCP_NODELAY, true)
-//                    .childOption(ChannelOption.AUTO_READ, false)
-                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024, 100 * 1024))
+                    .childOption(ChannelOption.AUTO_READ, false)
+                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(512 * 1024, 1024 * 1024))
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
