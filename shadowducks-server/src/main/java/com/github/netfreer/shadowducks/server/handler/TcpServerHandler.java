@@ -1,6 +1,7 @@
 package com.github.netfreer.shadowducks.server.handler;
 
 import com.github.netfreer.shadowducks.common.config.AppConfig;
+import com.github.netfreer.shadowducks.common.handler.HandlerCommons;
 import com.github.netfreer.shadowducks.common.handler.TransferHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -14,12 +15,12 @@ import java.net.InetSocketAddress;
  * @author: landy
  * @date: 2017-04-11 19:47
  */
-public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOG = LoggerFactory.getLogger(ShadowSocksServerHandler.class);
+public class TcpServerHandler extends ChannelInboundHandlerAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(TcpServerHandler.class);
     private final AppConfig config;
     private Channel destChannel;
 
-    public ShadowSocksServerHandler(AppConfig config) {
+    public TcpServerHandler(AppConfig config) {
         this.config = config;
     }
 
@@ -59,7 +60,7 @@ public class ShadowSocksServerHandler extends ChannelInboundHandlerAdapter {
                                         if (destCtx.channel().isWritable()) {
                                             originalCtx.channel().config().setAutoRead(true);
                                         }
-                                        originalCtx.pipeline().remove(ShadowSocksServerHandler.this);
+                                        originalCtx.pipeline().remove(TcpServerHandler.this);
                                         originalCtx.pipeline().addLast(new TransferHandler(destCtx.channel(), "client"));
                                     }
                                 });

@@ -1,4 +1,4 @@
-package com.github.netfreer.shadowducks.server.handler;
+package com.github.netfreer.shadowducks.common.handler;
 
 import com.github.netfreer.shadowducks.common.utils.AppConstans;
 import com.google.common.io.CharStreams;

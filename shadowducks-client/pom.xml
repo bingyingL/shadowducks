@@ -12,5 +12,11 @@
     <groupId>com.github.netfreer</groupId>
     <artifactId>shadowducks-client</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.github.netfreer</groupId>
+            <artifactId>shadowducks-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

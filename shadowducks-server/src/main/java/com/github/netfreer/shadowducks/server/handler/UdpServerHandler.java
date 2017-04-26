@@ -1,5 +1,6 @@
 package com.github.netfreer.shadowducks.server.handler;
 
+import com.github.netfreer.shadowducks.common.handler.HandlerCommons;
 import com.github.netfreer.shadowducks.common.utils.AppConstans;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -20,9 +21,9 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UdpForwardHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-    private static final Logger LOG = LoggerFactory.getLogger(UdpForwardHandler.class);
-    public static final Logger LOGGER = LoggerFactory.getLogger(UdpForwardHandler.class);
+public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private static final Logger LOG = LoggerFactory.getLogger(UdpServerHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(UdpServerHandler.class);
     private Map<String, Channel> src2channel = new HashMap<String, Channel>();
 
     @Override
