@@ -11,6 +11,8 @@ public class ConfigUtil {
     public static AppConfig loadConfig(String[] args) {
         AppConfig config = new AppConfig();
         config.setServerAddress("0.0.0.0");
+        config.setLocalAddress("0.0.0.0");
+        config.setLocalPort(1080);
         config.setTimeout(30 * 1000);
         int port = 2999;
         if (args.length > 0) {
