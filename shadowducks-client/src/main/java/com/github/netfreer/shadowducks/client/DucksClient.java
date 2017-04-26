@@ -46,15 +46,8 @@ public class DucksClient {
                             ch.pipeline().addLast(new TcpClientHandler(config));
                         }
                     });
-            for (PortContext tuple : config.getPorts()) {
-                try {
-                    Channel channel = tcpBootstrap.bind(config.getServerAddress(), tuple.getPort()).sync().channel();
-                    log.info("Start listen tcp port {} on address {}, method: {}, password: {}.", config.getServerAddress(),
-                            tuple.getPort(), tuple.getMethod(), tuple.getPassword());
-                } catch (Exception e) {
-                    throw new IllegalStateException("can't bind tcp port " + tuple.getPort() + " on address " + config.getServerAddress(), e);
-                }
-            }
+            tcpBootstrap.bind(config.getLocalAddress(), config.getLocalPort()).sync().channel();
+            log.info("Start listen tcp port {} on address {}", config.getServerAddress(), config.getLocalPort());
             Bootstrap udpBootstrap = new Bootstrap().group(work)
                     .channel(NioDatagramChannel.class)
                     .handler(new ChannelInboundHandlerAdapter() {
@@ -69,16 +62,8 @@ public class DucksClient {
                             ctx.fireChannelActive();
                         }
                     });
-
-            for (PortContext tuple : config.getPorts()) {
-                try {
-                    Channel channel = udpBootstrap.bind(config.getServerAddress(), tuple.getPort()).sync().channel();
-                    log.info("Start listen udp port {} on address {}, method: {}, password: {}.", config.getServerAddress(),
-                            tuple.getPort(), tuple.getMethod(), tuple.getPassword());
-                } catch (Exception e) {
-                    throw new IllegalStateException("can't bind udp port " + tuple.getPort() + " on address " + config.getServerAddress(), e);
-                }
-            }
+            udpBootstrap.bind(config.getServerAddress(), config.getLocalPort()).sync().channel();
+            log.info("Start listen udp port {} on address {}", config.getServerAddress(), config.getLocalPort());
             log.info("start server success !");
             boss.terminationFuture().sync();
         } catch (Exception e) {

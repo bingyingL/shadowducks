@@ -14,9 +14,18 @@ public class AppConfig {
     private int localPort;
     private final Set<PortContext> ports = new HashSet<PortContext>();
     private int timeout;
+    private PortContext destPort;
     private final boolean fastOpen = false;
 
     public AppConfig() {
+    }
+
+    public PortContext getDestPort() {
+        return destPort;
+    }
+
+    public void setDestPort(PortContext destPort) {
+        this.destPort = destPort;
     }
 
     public PortContext getPortContext(int port) {

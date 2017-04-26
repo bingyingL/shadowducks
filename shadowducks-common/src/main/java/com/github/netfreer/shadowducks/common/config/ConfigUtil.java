@@ -23,7 +23,9 @@ public class ConfigUtil {
         if (args.length > 1) {
             password = args[1];
         }
-        config.getPorts().add(new PortContext(port, DucksFactory.STREAM_AES_256_CFB, password));
+        PortContext first = new PortContext(port, DucksFactory.STREAM_AES_256_CFB, password);
+        config.setDestPort(first);
+        config.getPorts().add(first);
         return config;
     }
 }
