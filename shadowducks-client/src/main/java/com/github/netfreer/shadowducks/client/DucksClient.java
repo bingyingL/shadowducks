@@ -1,21 +1,19 @@
 package com.github.netfreer.shadowducks.client;
 
-import com.github.netfreer.shadowducks.client.handler.TcpClientHandler;
-import com.github.netfreer.shadowducks.client.handler.UdpClientHandler;
+import com.github.netfreer.shadowducks.client.handler.SocksServerHandler;
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.PortContext;
 import com.github.netfreer.shadowducks.common.utils.DucksFactory;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.socksx.SocksPortUnificationServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * @author: landy
@@ -41,29 +39,14 @@ public class DucksClient {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
-                            PortContext portContext = config.getPortContext(ch.localAddress().getPort());
-                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, true));
-                            ch.pipeline().addLast(new TcpClientHandler(config));
+//                            PortContext portContext = config.getPortContext(ch.localAddress().getPort());
+//                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, true));
+                            ch.pipeline().addLast(new SocksPortUnificationServerHandler(),
+                                    SocksServerHandler.INSTANCE);
                         }
                     });
             tcpBootstrap.bind(config.getLocalAddress(), config.getLocalPort()).sync().channel();
             log.info("Start listen tcp port {} on address {}", config.getServerAddress(), config.getLocalPort());
-            Bootstrap udpBootstrap = new Bootstrap().group(work)
-                    .channel(NioDatagramChannel.class)
-                    .handler(new ChannelInboundHandlerAdapter() {
-                        @Override
-                        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                            Channel ch = ctx.channel();
-                            PortContext portContext = config.getPortContext(((InetSocketAddress) ch.localAddress()).getPort());
-                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, false));
-//                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
-                            ch.pipeline().addLast(new UdpClientHandler());
-                            ch.pipeline().remove(this);
-                            ctx.fireChannelActive();
-                        }
-                    });
-            udpBootstrap.bind(config.getServerAddress(), config.getLocalPort()).sync().channel();
-            log.info("Start listen udp port {} on address {}", config.getServerAddress(), config.getLocalPort());
             log.info("start server success !");
             boss.terminationFuture().sync();
         } catch (Exception e) {
