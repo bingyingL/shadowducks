@@ -1,5 +1,6 @@
 package com.github.netfreer.shadowducks.client;
 
+import com.github.netfreer.shadowducks.client.handler.AttrKeys;
 import com.github.netfreer.shadowducks.client.handler.SocksServerHandler;
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.PortContext;
@@ -34,7 +35,7 @@ public class DucksClient {
         try {
             ServerBootstrap tcpBootstrap = new ServerBootstrap().group(boss, work)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
+//                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childOption(ChannelOption.TCP_NODELAY, true)
 //                    .childOption(ChannelOption.AUTO_READ, false)
 //                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(512 * 1024, 1024 * 1024))
@@ -43,6 +44,7 @@ public class DucksClient {
                         protected void initChannel(NioSocketChannel ch) throws Exception {
 //                            PortContext portContext = config.getPortContext(ch.localAddress().getPort());
 //                            ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, true));
+                            ch.attr(AttrKeys.CHANNEL_BEGIN_TIME).set(System.currentTimeMillis());
                             ch.pipeline().addLast(new SocksPortUnificationServerHandler(),
                                     SocksServerHandler.INSTANCE);
                         }

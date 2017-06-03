@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+    <!-- 项目发布时，为提高运行效率可以去掉stdout -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{yy-MM-dd HH:mm:ss} [%thread] %-5level %logger{10} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.github.netfreer" level="INFO"/>
+    <root level="info">
+        <appender-ref ref="stdout"/>
+    </root>
+</configuration>

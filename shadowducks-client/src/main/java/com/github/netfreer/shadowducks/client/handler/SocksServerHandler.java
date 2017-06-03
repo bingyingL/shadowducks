@@ -60,6 +60,7 @@ public final class SocksServerHandler extends SimpleChannelInboundHandler<SocksM
                         ctx.pipeline().remove(this);
                         ctx.fireChannelRead(socksRequest);
                     } else {
+                        //TODO UDP Process
                         ctx.close();
                     }
                 } else {
