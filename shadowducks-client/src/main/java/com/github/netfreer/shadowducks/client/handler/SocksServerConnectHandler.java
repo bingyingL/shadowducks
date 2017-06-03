@@ -15,6 +15,7 @@
  */
 package com.github.netfreer.shadowducks.client.handler;
 
+import com.github.netfreer.shadowducks.common.utils.AttrKeys;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;

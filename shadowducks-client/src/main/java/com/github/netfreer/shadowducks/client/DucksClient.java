@@ -1,20 +1,15 @@
 package com.github.netfreer.shadowducks.client;
 
-import com.github.netfreer.shadowducks.client.handler.AttrKeys;
+import com.github.netfreer.shadowducks.common.utils.AttrKeys;
 import com.github.netfreer.shadowducks.client.handler.SocksServerHandler;
 import com.github.netfreer.shadowducks.common.config.AppConfig;
-import com.github.netfreer.shadowducks.common.config.PortContext;
-import com.github.netfreer.shadowducks.common.utils.DucksFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.socksx.SocksPortUnificationServerHandler;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

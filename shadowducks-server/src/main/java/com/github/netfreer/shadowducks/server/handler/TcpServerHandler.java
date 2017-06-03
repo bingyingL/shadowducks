@@ -3,9 +3,11 @@ package com.github.netfreer.shadowducks.server.handler;
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.handler.HandlerCommons;
 import com.github.netfreer.shadowducks.common.handler.TransferHandler;
+import com.github.netfreer.shadowducks.common.utils.AttrKeys;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.util.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,11 +73,14 @@ public class TcpServerHandler extends ChannelInboundHandlerAdapter {
                 connectFuture.addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                        Attribute<Long> beginTimeAttr = originalCtx.channel().attr(AttrKeys.CHANNEL_BEGIN_TIME);
+                        final long parseTime = beginTimeAttr.get();
+                        long usedTime = System.currentTimeMillis() - parseTime;
                         if (!channelFuture.isSuccess()) {
-                            LOG.warn("connect failure {}:{}, {} ", address.getHostName(), address.getPort(), channelFuture.cause().getMessage());
+                            LOG.warn("connect failure {}:{}, use time {} millis. {} ", address.getHostName(), address.getPort(),usedTime, channelFuture.cause().getMessage());
                             originalCtx.channel().close();
                         } else {
-                            LOG.info("connect success {}:{}", address.getHostName(), address.getPort());
+                            LOG.info("connect success {}:{}, use time {} millis.", address.getHostName(), address.getPort(),usedTime);
                         }
                     }
                 });

@@ -2,6 +2,7 @@ package com.github.netfreer.shadowducks.server;
 
 import com.github.netfreer.shadowducks.common.config.AppConfig;
 import com.github.netfreer.shadowducks.common.config.PortContext;
+import com.github.netfreer.shadowducks.common.utils.AttrKeys;
 import com.github.netfreer.shadowducks.common.utils.DucksFactory;
 import com.github.netfreer.shadowducks.server.handler.TcpServerHandler;
 import com.github.netfreer.shadowducks.server.handler.UdpServerHandler;
@@ -41,6 +42,7 @@ public class DucksServer {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) throws Exception {
+                            ch.attr(AttrKeys.CHANNEL_BEGIN_TIME).set(System.currentTimeMillis());
                             PortContext portContext = config.getPortContext(ch.localAddress().getPort());
                             ch.pipeline().addLast(DucksFactory.getChannelHandler(portContext, true));
                             ch.pipeline().addLast(new TcpServerHandler(config));

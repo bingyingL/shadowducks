@@ -1,4 +1,4 @@
-package com.github.netfreer.shadowducks.client.handler;
+package com.github.netfreer.shadowducks.common.utils;
 
 import io.netty.util.AttributeKey;
 
